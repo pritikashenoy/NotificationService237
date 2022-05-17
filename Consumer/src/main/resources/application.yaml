@@ -1,0 +1,40 @@
+server:
+  port: 8000
+
+kafka:
+  producer:
+    bootstrap: localhost:9092
+    topic: testAuto
+
+connection:
+  timeout: 60000
+
+logging:
+  level:
+    org:
+      apache:
+        http: DEBUG
+        kafka: ERROR
+      springframework:
+        cloud:
+          sleuth: INFO
+    nodeValue: DEBUG
+
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: '587'
+    username: cs237uci
+    password: Middleware@237
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+mail:
+  smtp:
+    debug: true
+
+
