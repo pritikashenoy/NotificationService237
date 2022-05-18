@@ -1,28 +1,57 @@
 package com.producer.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
 public class KafkaTopicConfig {
-    // ToDo : save topic names as constants in a separate file.
 
-    public static final String Topic1 = "TopicMalone";
+    @Value("${kafka.producer.bootstrap-servers}")
+    private String bootstrapServers;
+
+    @Value("${kafka.producer.topic1.name}")
+    private String topic1Name;
+
+    @Value("${kafka.producer.topic1.partitions}")
+    private Integer topic1Partitions;
+
+    @Value("${kafka.producer.topic1.replicas}")
+    private Integer topic1Replicas;
+
+    @Value("${kafka.producer.topic2.name}")
+    private String topic2Name;
+
+    @Value("${kafka.producer.topic2.partitions}")
+    private Integer topic2Partitions;
+
+    @Value("${kafka.producer.topic2.replicas}")
+    private Integer topic2Replicas;
+
+    @Value("${kafka.producer.topic3.name}")
+    private String topic3Name;
+
+    @Value("${kafka.producer.topic3.partitions}")
+    private Integer topic3Partitions;
+
+    @Value("${kafka.producer.topic3.replicas}")
+    private Integer topic3Replicas;
+
     @Bean
-    public NewTopic weather()
+    public NewTopic topic1()
     {
-        return TopicBuilder.name("weather").partitions(3).build();
+        return TopicBuilder.name(topic1Name).partitions(topic1Partitions).replicas(3).build();
     }
     @Bean
-    public NewTopic job()
+    public NewTopic topic2()
     {
-        return TopicBuilder.name("job").partitions(3).build();
+        return TopicBuilder.name(topic2Name).partitions(topic2Partitions).replicas(3).build();
     }
     @Bean
-    public NewTopic stock()
+    public NewTopic topic3()
     {
-        return TopicBuilder.name("stock").partitions(3).build();
+        return TopicBuilder.name(topic3Name).partitions(topic1Partitions).replicas(3).build();
     }
 }

@@ -2,9 +2,21 @@ server:
   port: 8000
 
 kafka:
-  producer:
-    bootstrap: localhost:9092
-    topic: testAuto
+  consumer:
+    bootstrap: localhost:9092,localhost:9093,localhost:9094
+    offset: earliest
+    group1:
+      id: group1
+      topic: weather
+      consumers: 3
+    group2:
+      id: group2
+      topic: stock
+      consumers: 3
+    group3:
+      id: group3
+      topic: job
+      consumers: 3
 
 connection:
   timeout: 60000
@@ -25,8 +37,6 @@ spring:
   mail:
     host: smtp.gmail.com
     port: '587'
-    username: cs237uci
-    password: Middleware@237
     properties:
       mail:
         smtp:
