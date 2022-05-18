@@ -21,7 +21,15 @@ Per topic config:
 ```
 /usr/local/opt/kafka/bin/kafka-topics --describe --topic weather --bootstrap-server localhost:9092
 ```
+List consumer groups:
+```
+/usr/local/opt/kafka/bin/kafka-consumer-groups  --list --bootstrap-server localhost:9092
+```
 
+Per consumer group config:
+```
+/usr/local/opt/kafka/bin/kafka-consumer-groups --describe --group group1 --bootstrap-server localhost:9092
+```
 For address already in use errors, check:
 ```
 lsof -i :<port>
