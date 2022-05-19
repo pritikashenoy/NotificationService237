@@ -4,6 +4,8 @@ services:
   zookeeper:
     image: zookeeper
     container_name: zookeeper
+    networks:
+      - mynetwork
     ports:
       - '2181:2181'
     restart: on-failure
@@ -11,6 +13,8 @@ services:
   kafka:
       image: wurstmeister/kafka:2.11-2.0.0
       container_name: kafka
+      networks:
+        - mynetwork
       links:
         - zookeeper
       environment:
@@ -21,6 +25,8 @@ services:
 
   producer:
       build: ./Producer/
+      networks:
+        - mynetwork
       ports:
         - "9092"
       links:
@@ -30,6 +36,6 @@ services:
 #        - "zookeeper"
       environment:
         - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-#networks:
-#  mynetwork:
-#      external: true
+networks:
+  mynetwork:
+      external: true
