@@ -9,7 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaTopicConfig {
 
-    @Value("${kafka.producer.bootstrap-servers}")
+    @Value("${spring.kafka.producer.bootstrap-servers}")
     private String bootstrapServers;
 
     @Value("${kafka.producer.topic1.name}")
@@ -42,16 +42,16 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic topic1()
     {
-        return TopicBuilder.name(topic1Name).partitions(topic1Partitions).replicas(3).build();
+        return TopicBuilder.name(topic1Name).partitions(2).replicas(3).build();
     }
     @Bean
     public NewTopic topic2()
     {
-        return TopicBuilder.name(topic2Name).partitions(topic2Partitions).replicas(3).build();
+        return TopicBuilder.name(topic2Name).partitions(2).replicas(3).build();
     }
     @Bean
     public NewTopic topic3()
     {
-        return TopicBuilder.name(topic3Name).partitions(topic1Partitions).replicas(3).build();
+        return TopicBuilder.name(topic3Name).partitions(2).replicas(3).build();
     }
 }

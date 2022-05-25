@@ -21,8 +21,8 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConsumerConfig {
 
-        @Value("${kafka.consumer.bootstrap}")
-        private String bootstrapServers;
+    @Value("${kafka.consumer.bootstrap}")
+    private String bootstrapServers;
 
     @Value("${kafka.consumer.group1.id}")
     private String group1;
