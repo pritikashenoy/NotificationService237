@@ -1,19 +1,17 @@
 package com.consumer.service;
 
 
+import com.consumer.model.Mail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import com.consumer.model.Mail;
-import javax.sound.midi.Receiver;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class ConsumerService {
     // To log the received messages
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(Receiver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsumerService.class);
 
     @Value("${kafka.consumer.group1.topic}")
     private String group1Topic;
@@ -32,10 +30,14 @@ public class ConsumerService {
         LOGGER.info("Received message='{}'", topic + ": " + data);
         Mail mail = new Mail();
         // TODO: Replace with config read from application.yaml
+        LOGGER.debug("Sending email");
         mail.setMailFrom("cs237uci@gmail.com");
         mail.setMailTo("cs237uci@gmail.com");
         mail.setMailSubject(topic + "Notification");
         mail.setMailContent(data);
+        mailService.sendEmail(mail);
+        LOGGER.debug("Sending email");
+
         // TODO: Fix connection pool
         // mailService.sendEmail(mail);
     }
