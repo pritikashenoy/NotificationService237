@@ -7,7 +7,7 @@ public class Mail {
 
     private String mailFrom;
 
-    private String mailTo;
+    private List<String> mailTo;
 
     private String mailCc;
 
@@ -65,11 +65,11 @@ public class Mail {
         this.mailSubject = mailSubject;
     }
 
-    public String getMailTo() {
+    public List<String> getMailTo() {
         return mailTo;
     }
 
-    public void setMailTo(String mailTo) {
+    public void setMailTo(List<String> mailTo) {
         this.mailTo = mailTo;
     }
 

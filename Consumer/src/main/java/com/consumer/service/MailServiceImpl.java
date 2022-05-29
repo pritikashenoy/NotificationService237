@@ -22,12 +22,14 @@ public class MailServiceImpl implements MailService {
 
     public void sendEmail(Mail mail, Session session,Transport transport){
         MimeMessage mimeMessage = new MimeMessage(session);
-
+        // TODO: Replace this to get the subscriber list for the topic, or set it in mail in the caller
+        String recipients = String.join(",", mail.getMailTo());
+        //String recipients = mail.getMailTo() + "," + "felicia.larson@hotmail.com";
         try {
             // TODO: Remove hardcoded
             mimeMessage.setFrom(new InternetAddress(mail.getMailFrom(), "Peter Jhon"));
-            // TODO: Use recipients for multiple subscribers
-            mimeMessage.addRecipient(MimeMessage.RecipientType.TO, InternetAddress.parse(mail.getMailTo())[0]);
+            mimeMessage.addRecipients(MimeMessage.RecipientType.TO, InternetAddress.parse(recipients));
+            //mimeMessage.addRecipient(MimeMessage.RecipientType.TO, InternetAddress.parse(rec)[0]);
             mimeMessage.setSubject(mail.getMailSubject());
             mimeMessage.setText(mail.getMailContent());
             LOGGER.debug("Sending email for " + mail.getMailSubject() + " " + mail.getMailContent());
