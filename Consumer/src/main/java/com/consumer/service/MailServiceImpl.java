@@ -35,7 +35,7 @@ public class MailServiceImpl implements MailService {
             LOGGER.debug("Sending email for " + mail.getMailSubject() + " " + mail.getMailContent());
             transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
         } catch (Exception e) {
-            LOGGER.debug("Sending failed for " + mail.getMailSubject() + " " + mail.getMailContent());
+            LOGGER.error("Sending failed for " + mail.getMailSubject() + " " + mail.getMailContent());
             e.printStackTrace();
         }
     }

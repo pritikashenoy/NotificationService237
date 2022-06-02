@@ -36,6 +36,18 @@ public class ConsumerService {
     @Value("${kafka.consumer.group3.topic}")
     private String group3Topic;
 
+    @Value("${kafka.consumer.group4.topic}")
+    private String group4Topic;
+
+    @Value("${kafka.consumer.group5.topic}")
+    private String group5Topic;
+
+    @Value("${kafka.consumer.group6.topic}")
+    private String group6Topic;
+
+    @Value("${kafka.consumer.group7.topic}")
+    private String group7Topic;
+
     // To send mails for the notifications received by the consumer service
     @Autowired
     private MailService mailService;
@@ -73,6 +85,8 @@ public class ConsumerService {
         // Get the set of subscribers for this topic
         List<String> subsList = new ArrayList<String>(subscriptions.get(topic));
         //mail.setMailTo("cs237uci@gmail.com");
+        //List<String> subsList = new ArrayList<String>();
+        //subsList.add("cs237uci@gmail.com");
         mail.setMailTo(subsList);
         mail.setMailSubject(topic + " Notification");
         mail.setMailContent(data);
@@ -113,6 +127,7 @@ public class ConsumerService {
         props.put("mail.smtp.port", smtpPort); //TLS Port
         props.put("mail.smtp.auth", smtpAuth); //enable authentication
         props.put("mail.smtp.starttls.enable", smtpAuth); //enable STARTTLS
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com"); //enable STARTTLS
         final String fromEmail = smtpUsername + "@gmail.com";
         Authenticator auth = new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -120,15 +135,15 @@ public class ConsumerService {
             }
         };
         session = Session.getInstance(props, auth);
-        session.setDebug(true);
+        //session.setDebug(true);
         try {
             LOGGER.debug("Creating transport for the consumer service" + " " + fromEmail);
             transport = session.getTransport("smtp");
-            LOGGER.debug("Creating transport connection for the consumer service");
+            LOGGER.debug("Creating transport connection for the consumer service "+ smtpHost + " " + smtpUsername + " " + smtpPassword);
             transport.connect(smtpHost, 587, smtpUsername, smtpPassword);
         } catch(Exception e)
         {
-            LOGGER.debug("Transport creation OR connection failed");
+            LOGGER.error("Transport creation OR connection failed");
             e.printStackTrace();
         }
     }
@@ -165,6 +180,31 @@ public class ConsumerService {
     public void group3Listener(String data) {
         consume(data, group3Topic);
     }
+
+    // Listener for group 4
+    @org.springframework.kafka.annotation.KafkaListener(topics = "${kafka.consumer.group4.topic}", concurrency = "${kafka.consumer.group4.consumers}", groupId = "${kafka.consumer.group4.id}")
+    public void group4Listener(String data) {consume(data, group4Topic);}
+
+    // Listener for group 5
+    @org.springframework.kafka.annotation.KafkaListener(topics = "${kafka.consumer.group5.topic}", concurrency = "${kafka.consumer.group5.consumers}", groupId = "${kafka.consumer.group5.id}")
+    public void group5Listener(String data) {
+        consume(data, group5Topic);
+    }
+
+    // Listener for group 6
+    @org.springframework.kafka.annotation.KafkaListener(topics = "${kafka.consumer.group6.topic}", concurrency = "${kafka.consumer.group6.consumers}", groupId = "${kafka.consumer.group6.id}")
+    public void group6Listener(String data) {
+        consume(data, group6Topic);
+    }
+
+    // Listener for group 7
+    @org.springframework.kafka.annotation.KafkaListener(topics = "${kafka.consumer.group7.topic}", concurrency = "${kafka.consumer.group7.consumers}", groupId = "${kafka.consumer.group7.id}")
+    public void group7Listener(String data) {
+        consume(data, group7Topic);
+    }
+
+
+
 }
 
 

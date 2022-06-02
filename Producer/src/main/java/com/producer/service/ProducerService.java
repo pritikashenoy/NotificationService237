@@ -6,13 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-
-import java.time.Duration;
-import java.util.stream.Stream;
-
+import java.io.*;
+import java.util.*;
+import com.producer.model.*;
 
 @Service
 public final class ProducerService {
@@ -27,36 +26,66 @@ public final class ProducerService {
     @Value("${kafka.producer.topic3.name}")
     private String topic3Name;
 
+    @Value("${kafka.producer.topic4.name}")
+    private String topic4Name;
+
+    @Value("${kafka.producer.topic5.name}")
+    private String topic5Name;
+
+    @Value("${kafka.producer.topic6.name}")
+    private String topic6Name;
+
+    @Value("${kafka.producer.topic7.name}")
+    private String topic7Name;
+
+    Map<String,String> topics;
+
     private final KafkaTemplate<Integer, String> kafkaTemplate;
 
     public ProducerService(KafkaTemplate<Integer, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
-    private static Faker faker;
+
 
     @EventListener(ApplicationStartedEvent.class)
-    public void generate() {
-        System.out.println("Started producer...");
-        faker = Faker.instance();
-
-        final Flux<Long> interval = Flux.interval(Duration.ofMillis(1000));
-        // generate weather related notifications
-        final Flux<String> weather_desc = Flux.fromStream(Stream.generate(() -> faker.weather().description()));
-
-        // generate stock related notifications
-        final Flux<String> stock_desc = Flux.fromStream(Stream.generate(() -> faker.stock().nsdqSymbol()));
-
-        // generate job related notifications
-        final Flux<String> job_desc = Flux.fromStream(Stream.generate(() -> faker.job().position()));
-
-        Flux.zip(interval, weather_desc, stock_desc, job_desc)
-                .subscribe(it ->
-                {
-                    kafkaTemplate.send(topic1Name, faker.random().nextInt(42), it.getT2());
-                    kafkaTemplate.send(topic2Name, faker.random().nextInt(42), it.getT3());
-                    kafkaTemplate.send(topic3Name, faker.random().nextInt(42), it.getT4());
-                });
+    public void generate() throws IOException, InterruptedException {
+        createUrlToTopicMapping();
+        String url = "", topicName = "";
+        BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource("classpath:RSSFeed.txt").getInputStream()));
+        try {
+            while ((url = br.readLine()) != null) {
+                RSSFeedParser parser = new RSSFeedParser(url);
+                Feed feed = parser.readFeed();
+                int i = 0;
+                for (FeedMessage message : feed.getMessages()) {
+                    topicName = topics.get(url);
+                    kafkaTemplate.send(topicName, i, message.toString());
+                    logger.debug("Sending " + message.toString());
+                    i++;
+                    Thread.sleep(100);
+                }
+                Thread.sleep(1000);
+            }
+        } catch(Exception e)
+        {
+            logger.debug("URL " + url + " failed!");
+            e.printStackTrace();
+        }
 
 
     }
+
+    // TODO: Find a better way to do this
+    void createUrlToTopicMapping()
+    {
+        topics = new HashMap<String,String>();
+        topics.put("http://lorem-rss.herokuapp.com/feed?unit=second","lorem1");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=5","lorem5");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=10&length=10","lorem10");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=30&length=30","lorem30");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=60&length=60","lorem60");
+        topics.put("http://rss.cnn.com/rss/cnn_topstories.rss","news");
+        topics.put("https://w1.weather.gov/xml/current_obs/KSNA.rss","weather");
+    }
+
 }
