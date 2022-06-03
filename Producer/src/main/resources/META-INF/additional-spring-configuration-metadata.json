@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "kafka.producer.bootstrap",
+      "type": "java.lang.String",
+      "description": "Description for kafka.producer.bootstrap."
+  }
+] }

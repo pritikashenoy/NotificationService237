@@ -1,7 +1,8 @@
 version: '3'
+
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.4.1
+    image: wurstmeister/zookeeper
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -13,93 +14,93 @@ services:
       - mynetwork
 
   kafka-1:
-    image: confluentinc/cp-kafka:5.4.1
-    container_name: kafka-1
-    depends_on:
+    build: .
+    links:
       - zookeeper
     ports:
       - "9092:9092"
+      - "7071:7071"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      EXTRA_ARGS: -javaagent:/usr/app/jmx_prometheus_javaagent.jar=7071:/usr/app/prom-jmx-agent-config.yml
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:39092,HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:39092,HOST://localhost:9092
-      KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: '2'
     volumes:
-      - ./data/container_data/kafka-1-data:/var/lib/kafka/data
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - mynetwork
 
-  kafka-2:
-    image: confluentinc/cp-kafka:5.4.1
-    container_name: kafka-2
-    depends_on:
-      - zookeeper
-    ports:
-      - "19092:19092"
-    environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:49092,HOST://0.0.0.0:19092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:49092,HOST://localhost:19092
-      KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: '2'
-    volumes:
-      - ./data/container_data/kafka-2-data:/var/lib/kafka/data
-    networks:
-      - mynetwork
+#  kafka-2:
+#    build: .
+#    links:
+#      - zookeeper
+#    ports:
+#      - "19092:19092"
+#      -  "7072:7072"
+#    environment:
+#      KAFKA_BROKER_ID: 2
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      EXTRA_ARGS: -javaagent:/usr/app/jmx_prometheus_javaagent.jar=7072:/usr/app/prom-jmx-agent-config.yml
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
+#      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+#      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:49092,HOST://0.0.0.0:19092
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:49092,HOST://localhost:19092
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    networks:
+#      - mynetwork
 
-  kafka-3:
-    image: confluentinc/cp-kafka:5.4.1
-    container_name: kafka-3
-    depends_on:
-      - zookeeper
+  prometheus:
+    image: prom/prometheus
     ports:
-      - "29092:29092"
-    environment:
-      KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:59092,HOST://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:59092,HOST://localhost:29092
-      KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS: '2'
+      - "9090:9090/tcp"
     volumes:
-      - ./data/container_data/kafka-3-data:/var/lib/kafka/data
+      - ./mount/prometheus:/etc/prometheus
+    links:
+      - kafka-1
+      - producer
     networks:
       - mynetwork
 
   producer:
+    container_name: producer
     build: ./Producer/
     ports:
-      - "9000"
+      - "9000:9000"
     links:
       - kafka-1
-      - kafka-2
-      - kafka-3
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
     networks:
       - mynetwork
 
+
   consumer:
     build: ./Consumer/
     ports:
-      - "8000"
+      - "8000:8000"
     links:
       - kafka-1
-      - kafka-2
-      - kafka-3
       - producer
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
     networks:
       - mynetwork
+#
+#  grafana:
+#    image: grafana/grafana
+#    container_name: 'grafana'
+#    ports:
+#      - '3000:3000'
+#    depends_on:
+#      - prometheus
+#    networks:
+#      - mynetwork
+
 
 networks:
-    mynetwork:
-      external: true
-
+  mynetwork:
+    external: true
