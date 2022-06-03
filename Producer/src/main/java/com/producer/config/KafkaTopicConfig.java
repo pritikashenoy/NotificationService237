@@ -92,4 +92,26 @@ public class KafkaTopicConfig {
     {
         return TopicBuilder.name(topic3Name).partitions(numPartitions).replicas(1).build();
     }
+
+    @Bean
+    public NewTopic topic4()
+    {
+        return TopicBuilder.name(topic4Name).partitions(numPartitions).replicas(1).build();
+    }
+    @Bean
+    public NewTopic topic5()
+    {
+        return TopicBuilder.name(topic5Name).partitions(numPartitions).replicas(1).build();
+    }
+    @Bean
+    public NewTopic topic6()
+    {
+        return TopicBuilder.name(topic6Name).partitions(numPartitions).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic topic7()
+    {
+        return TopicBuilder.name(topic7Name).partitions(numPartitions).replicas(1).build();
+    }
 }
