@@ -33,6 +33,28 @@ services:
     networks:
       - mynetwork
 
+  postgres:
+    build: ./postgres
+    container_name: postgres
+    environment:
+      - POSTGRES_PASSWORD=cs237
+      - POSTGRES_USER=cs237
+    ports:
+      - '5432:5432'
+    networks:
+      - mynetwork
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=cs237uci@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=Middleware@237
+    ports:
+      - '5488:5488'
+    networks:
+      - mynetwork
+
 #  kafka-2:
 #    build: .
 #    links:
@@ -85,8 +107,14 @@ services:
     links:
       - kafka-1
       - producer
+      - postgres
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=notifydb
+      - PGUSER=cs237
+      - PGPASSWORD=cs237
     networks:
       - mynetwork
 #
