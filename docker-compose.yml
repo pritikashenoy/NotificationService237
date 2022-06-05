@@ -10,8 +10,6 @@ services:
     volumes:
       - ./data/container_data/zk-data:/var/lib/zookeeper/data
       - ./data/container_data/zk-txn-logs:/var/lib/zookeeper/log
-    networks:
-      - mynetwork
 
   kafka-1:
     build: .
@@ -30,9 +28,6 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:39092,HOST://localhost:9092
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - mynetwork
-
 #  kafka-2:
 #    build: .
 #    links:
@@ -62,8 +57,9 @@ services:
     links:
       - kafka-1
       - producer
-    networks:
-      - mynetwork
+      - consumer-1
+      - consumer-2
+      - consumer-3
 
   producer:
     container_name: producer
@@ -74,11 +70,9 @@ services:
       - kafka-1
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
-    networks:
-      - mynetwork
 
-
-  consumer:
+  consumer-1:
+    container_name: consumer-1
     build: ./Consumer/
     ports:
       - "8000:8000"
@@ -87,8 +81,34 @@ services:
       - producer
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
-    networks:
-      - mynetwork
+      - MANAGEMENT_SERVER_PORT=8000
+
+
+  consumer-2:
+    container_name: consumer-2
+    build: ./Consumer/
+    ports:
+      - "8085:8085"
+    links:
+      - kafka-1
+      - producer
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
+      - MANAGEMENT_SERVER_PORT=8085
+
+
+  consumer-3:
+      container_name: consumer-3
+      build: ./Consumer/
+      ports:
+        - "8090:8090"
+      links:
+        - kafka-1
+        - producer
+      environment:
+        - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
+        - MANAGEMENT_SERVER_PORT=8090
+
 #
 #  grafana:
 #    image: grafana/grafana
@@ -99,8 +119,3 @@ services:
 #      - prometheus
 #    networks:
 #      - mynetwork
-
-
-networks:
-  mynetwork:
-    external: true

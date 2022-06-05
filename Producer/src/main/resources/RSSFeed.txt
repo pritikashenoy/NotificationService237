@@ -1,7 +1,7 @@
-http://lorem-rss.herokuapp.com/feed?unit=second
-https://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=5
-https://lorem-rss.herokuapp.com/feed?unit=second&interval=10&length=10
-https://lorem-rss.herokuapp.com/feed?unit=second&interval=30&length=30
-https://lorem-rss.herokuapp.com/feed?unit=second&interval=60&length=60
+http://lorem-rss.herokuapp.com/feed?unit=second&length=1000
+https://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=1000
+https://lorem-rss.herokuapp.com/feed?unit=second&interval=10&length=1000
+https://lorem-rss.herokuapp.com/feed?unit=second&interval=30&length=1000
+https://lorem-rss.herokuapp.com/feed?unit=second&interval=60&length=1000
 http://rss.cnn.com/rss/cnn_topstories.rss
 https://w1.weather.gov/xml/current_obs/KSNA.rss

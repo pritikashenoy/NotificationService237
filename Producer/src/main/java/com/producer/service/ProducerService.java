@@ -50,26 +50,29 @@ public final class ProducerService {
     @EventListener(ApplicationStartedEvent.class)
     public void generate() throws IOException, InterruptedException {
         createUrlToTopicMapping();
-        String url = "", topicName = "";
+        String url = "", topicName = topic1Name;
+        while(true) {
         BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource("classpath:RSSFeed.txt").getInputStream()));
-        try {
-            while ((url = br.readLine()) != null) {
-                RSSFeedParser parser = new RSSFeedParser(url);
-                Feed feed = parser.readFeed();
-                int i = 0;
-                for (FeedMessage message : feed.getMessages()) {
-                    topicName = topics.get(url);
-                    kafkaTemplate.send(topicName, i, message.toString());
-                    logger.debug("Sending " + message.toString());
-                    i++;
-                    Thread.sleep(100);
+
+            try {
+
+                while ((url = br.readLine()) != null) {
+                    RSSFeedParser parser = new RSSFeedParser(url);
+                    Feed feed = parser.readFeed();
+                    int i = 0;
+                    for (FeedMessage message : feed.getMessages()) {
+                        //topicName = topics.get(url);
+                        kafkaTemplate.send(topicName, i, message.toString());
+                        logger.debug("Sending " + message.toString());
+                        i++;
+                        //Thread.sleep(100);
+                    }
+                    //Thread.sleep(1000);
                 }
-                Thread.sleep(1000);
+            } catch (Exception e) {
+                logger.debug("URL " + url + " failed!");
+                e.printStackTrace();
             }
-        } catch(Exception e)
-        {
-            logger.debug("URL " + url + " failed!");
-            e.printStackTrace();
         }
 
 
