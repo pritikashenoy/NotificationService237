@@ -1,6 +1,8 @@
 package com.producer.service;
 
-import com.github.javafaker.Faker;
+import com.producer.model.Feed;
+import com.producer.model.FeedMessage;
+import com.producer.model.RSSFeedParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,9 +11,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import java.io.*;
-import java.util.*;
-import com.producer.model.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public final class ProducerService {
@@ -51,25 +56,26 @@ public final class ProducerService {
     public void generate() throws IOException, InterruptedException {
         createUrlToTopicMapping();
         String url = "", topicName = "";
-        BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource("classpath:RSSFeed.txt").getInputStream()));
-        try {
-            while ((url = br.readLine()) != null) {
-                RSSFeedParser parser = new RSSFeedParser(url);
-                Feed feed = parser.readFeed();
-                int i = 0;
-                for (FeedMessage message : feed.getMessages()) {
-                    topicName = topics.get(url);
-                    kafkaTemplate.send(topicName, i, message.toString());
-                    logger.debug("Sending " + message.toString());
-                    i++;
-                    Thread.sleep(100);
+        while(true) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource("classpath:RSSFeed.txt").getInputStream()));
+            try {
+                while ((url = br.readLine()) != null) {
+                    RSSFeedParser parser = new RSSFeedParser(url);
+                    Feed feed = parser.readFeed();
+                    int i = 0;
+                    for (FeedMessage message : feed.getMessages()) {
+                        topicName = topics.get(url);
+                        kafkaTemplate.send(topicName, i, message.toString());
+                        logger.debug("Sending " + message.toString());
+                        i++;
+                        Thread.sleep(100);
+                    }
+                    Thread.sleep(1000);
                 }
-                Thread.sleep(1000);
+            } catch (Exception e) {
+                logger.debug("URL " + url + " failed!");
+                e.printStackTrace();
             }
-        } catch(Exception e)
-        {
-            logger.debug("URL " + url + " failed!");
-            e.printStackTrace();
         }
 
 
