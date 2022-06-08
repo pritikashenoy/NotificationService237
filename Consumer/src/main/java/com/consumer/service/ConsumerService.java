@@ -52,9 +52,6 @@ public class ConsumerService {
     @Autowired
     private MailService mailService;
 
-    @Autowired
-    private SlackService slackService;
-
     // A session for the mail service
     // TBD: Even for multiple subscribers, this login will be same, only recipients vary, which can be set in mimemessage in MailService,
     // so this should work
@@ -82,7 +79,7 @@ public class ConsumerService {
 
     private void consume(String data, String topic) {
         LOGGER.info("Received message='{}'", topic + ": " + data);
-        /*Mail mail = new Mail();
+        Mail mail = new Mail();
         // TODO: Replace with config read from application.yaml
         mail.setMailFrom("cs237uci@gmail.com");
         // Get the set of subscribers for this topic
@@ -93,8 +90,7 @@ public class ConsumerService {
         mail.setMailTo(subsList);
         mail.setMailSubject(topic + " Notification");
         mail.setMailContent(data);
-        mailService.sendEmail(mail, session, transport);*/
-        slackService.sendMessageToSlack(data);
+        mailService.sendEmail(mail, session, transport);
     }
 
     private void setUpSubscriptions() throws Exception {
@@ -157,9 +153,9 @@ public class ConsumerService {
     public void setUp() throws Exception {
         LOGGER.debug("In setup phase");
         // 1. Create subscription list
-        //setUpSubscriptions();
+        setUpSubscriptions();
         // 2. Set up transport to send mails to the subscribers
-        //setUpTransport();
+        setUpTransport();
     }
 
     //@EventListener(ConsumerStoppedEvent.class)

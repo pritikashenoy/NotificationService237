@@ -1,7 +1,2 @@
 news
 weather
-lorem1
-lorem5
-lorem10
-lorem30
-lorem60

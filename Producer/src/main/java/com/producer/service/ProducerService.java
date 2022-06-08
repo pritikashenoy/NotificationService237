@@ -8,9 +8,12 @@ import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import java.io.*;
 import java.util.*;
+
 import com.producer.model.*;
 
 @Service
@@ -38,7 +41,7 @@ public final class ProducerService {
     @Value("${kafka.producer.topic7.name}")
     private String topic7Name;
 
-    Map<String,String> topics;
+    Map<String, String> topics;
 
     private final KafkaTemplate<Integer, String> kafkaTemplate;
 
@@ -47,48 +50,47 @@ public final class ProducerService {
     }
 
 
-    @EventListener(ApplicationStartedEvent.class)
+//    @Scheduled(fixedDelay = 1000) // add time in miliseconds
     public void generate() throws IOException, InterruptedException {
         createUrlToTopicMapping();
         String url = "", topicName = topic1Name;
-        while(true) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource("classpath:RSSFeed.txt").getInputStream()));
+//        while(true) {
+//        BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource("classpath:RSSFeed.txt").getInputStream()));
 
-            try {
-
-                while ((url = br.readLine()) != null) {
-                    RSSFeedParser parser = new RSSFeedParser(url);
-                    Feed feed = parser.readFeed();
-                    int i = 0;
-                    for (FeedMessage message : feed.getMessages()) {
-                        //topicName = topics.get(url);
-                        kafkaTemplate.send(topicName, i, message.toString());
-                        logger.debug("Sending " + message.toString());
-                        i++;
-                        //Thread.sleep(100);
-                    }
-                    //Thread.sleep(1000);
+        try {
+                url = "http://lorem-rss.herokuapp.com/feed?unit=second&length=10";
+//            while ((url = br.readLine()) != null) {
+                RSSFeedParser parser = new RSSFeedParser(url);
+                Feed feed = parser.readFeed();
+                int i = 0;
+                for (FeedMessage message : feed.getMessages()) {
+                    //topicName = topics.get(url);
+                    kafkaTemplate.send(topicName, i, message.toString());
+                    logger.debug("Sending " + message.toString());
+                    i++;
+//                    Thread.sleep((long) (Math.random() * 1000));
                 }
-            } catch (Exception e) {
-                logger.debug("URL " + url + " failed!");
-                e.printStackTrace();
-            }
+//                Thread.sleep((long) (Math.random() * 1000));
+//            }
+        } catch (Exception e) {
+            logger.debug("URL " + url + " failed!");
+            e.printStackTrace();
         }
+//        }
 
 
     }
 
     // TODO: Find a better way to do this
-    void createUrlToTopicMapping()
-    {
-        topics = new HashMap<String,String>();
-        topics.put("http://lorem-rss.herokuapp.com/feed?unit=second","lorem1");
-        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=5","lorem5");
-        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=10&length=10","lorem10");
-        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=30&length=30","lorem30");
-        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=60&length=60","lorem60");
-        topics.put("http://rss.cnn.com/rss/cnn_topstories.rss","news");
-        topics.put("https://w1.weather.gov/xml/current_obs/KSNA.rss","weather");
+    void createUrlToTopicMapping() {
+        topics = new HashMap<String, String>();
+        topics.put("http://lorem-rss.herokuapp.com/feed?unit=second", "lorem1");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=5", "lorem5");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=10&length=10", "lorem10");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=30&length=30", "lorem30");
+        topics.put("https://lorem-rss.herokuapp.com/feed?unit=second&interval=60&length=60", "lorem60");
+        topics.put("http://rss.cnn.com/rss/cnn_topstories.rss", "news");
+        topics.put("https://w1.weather.gov/xml/current_obs/KSNA.rss", "weather");
     }
 
 }

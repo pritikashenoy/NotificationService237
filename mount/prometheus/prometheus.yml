@@ -13,12 +13,12 @@ scrape_configs:
     - targets: [ 'consumer-1:8000']
       labels:
         service: '1'
-    - targets: ['consumer-2:8085']
-      labels:
-        service: '2'
-    - targets: ['consumer-3:8090']
-      labels:
-        service: '3'
+#    - targets: ['consumer-2:8085']
+#      labels:
+#        service: '2'
+#    - targets: ['consumer-3:8090']
+#      labels:
+#        service: '3'
 
   - job_name: kafka1
     static_configs:
