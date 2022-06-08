@@ -7,11 +7,10 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    volumes:
-      - ./data/container_data/zk-data:/var/lib/zookeeper/data
-      - ./data/container_data/zk-txn-logs:/var/lib/zookeeper/log
 
   kafka-1:
+    container_name: kafka
+    image: pritikashenoy0510/kafka_237
     build: .
     links:
       - zookeeper
@@ -25,54 +24,32 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:39092,HOST://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:39092,HOST://localhost:9092
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-#  kafka-2:
-#    build: .
-#    links:
-#      - zookeeper
-#    ports:
-#      - "19092:19092"
-#      -  "7072:7072"
-#    environment:
-#      KAFKA_BROKER_ID: 2
-#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-#      EXTRA_ARGS: -javaagent:/usr/app/jmx_prometheus_javaagent.jar=7072:/usr/app/prom-jmx-agent-config.yml
-#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
-#      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-#      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:49092,HOST://0.0.0.0:19092
-#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:49092,HOST://localhost:19092
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#    networks:
-#      - mynetwork
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:39092,HOST://localhost:9092
 
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - "9090:9090/tcp"
-    volumes:
-      - ./mount/prometheus:/etc/prometheus
-    links:
-      - kafka-1
-      - producer
-      - consumer-1
-#      - consumer-2
-#      - consumer-3
+
+#  prometheus:
+#    image: prom/prometheus
+#    ports:
+#      - "9090:9090/tcp"
+#    links:
+#      - kafka-1
+#      - producer
+#      - consumer-1
 
   producer:
     container_name: producer
+    image: pritikashenoy0510/producer_237
     build: ./Producer/
     ports:
       - "9000:9000"
     links:
       - kafka-1
     environment:
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:39092
 
   consumer-1:
     container_name: consumer-1
+    image: pritikashenoy0510/consumer_237
     build: ./Consumer/
     ports:
       - "8000:8000"
@@ -83,39 +60,39 @@ services:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
       - MANAGEMENT_SERVER_PORT=8000
 
-
-  consumer-2:
-    container_name: consumer-2
-    build: ./Consumer/
-    ports:
-      - "8085:8085"
-    links:
-      - kafka-1
-      - producer
-    environment:
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
-      - MANAGEMENT_SERVER_PORT=8085
-
-
-  consumer-3:
-      container_name: consumer-3
-      build: ./Consumer/
-      ports:
-        - "8090:8090"
-      links:
-        - kafka-1
-        - producer
-      environment:
-        - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
-        - MANAGEMENT_SERVER_PORT=8090
-
-
-  grafana:
-    image: grafana/grafana
-    container_name: 'grafana'
-    ports:
-      - '3000:3000'
-    depends_on:
-      - prometheus
-    networks:
-      - mynetwork
+#
+#  consumer-2:
+#    container_name: consumer-2
+#    build: ./Consumer/
+#    ports:
+#      - "8085:8085"
+#    links:
+#      - kafka-1
+#      - producer
+#    environment:
+#      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
+#      - MANAGEMENT_SERVER_PORT=8085
+#
+#
+#  consumer-3:
+#      container_name: consumer-3
+#      build: ./Consumer/
+#      ports:
+#        - "8090:8090"
+#      links:
+#        - kafka-1
+#        - producer
+#      environment:
+#        - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka-1:39092
+#        - MANAGEMENT_SERVER_PORT=8090
+#
+#
+#  grafana:
+#    image: grafana/grafana
+#    container_name: 'grafana'
+#    ports:
+#      - '3000:3000'
+#    depends_on:
+#      - prometheus
+#    networks:
+#      - mynetwork
