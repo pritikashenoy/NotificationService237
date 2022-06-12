@@ -52,10 +52,10 @@ public class ProducerService {
         // 1. Start with the slowest rate - 10 messages/5second
         // This URL gives 10 messages at a time  -  we want to send 10 messages per sec
         // run for 5 minutes.
-        String url = "https://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=10";
+        String url = "http://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=10";
         String topicName = "lorem10";
         long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(5L, TimeUnit.MINUTES);
-        while ( System.nanoTime() < endTime ) {
+        while (System.nanoTime() < endTime) {
             try {
                 RSSFeedParser parser = new RSSFeedParser(url);
                 Feed feed = parser.readFeed();
@@ -79,19 +79,40 @@ public class ProducerService {
         String url = "http://lorem-rss.herokuapp.com/feed?unit=second&length=1000";
         String topicName = "lorem10";
         long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(5L, TimeUnit.MINUTES);
-        while ( System.nanoTime() < endTime ) {
+        while (System.nanoTime() < endTime) {
             try {
                 RSSFeedParser parser = new RSSFeedParser(url);
                 Feed feed = parser.readFeed();
                 int i = 0;
                 for (FeedMessage message : feed.getMessages()) {
                     kafkaTemplate.send(topicName, i++, message.toString());
-                    logger.debug("Sending at high rate:" + message.toString());
+                    logger.debug("Sending at high rate:" + message);
                 }
             } catch (Exception e) {
                 logger.debug("URL " + url + " failed!");
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void generateHighOne() throws IOException, InterruptedException {
+        // 1. Start with the fastest rate - 1000 messages/second
+        // This URL gives 1000 messages at a time  -  we want to send 1000 messages per sec
+        // Run for 5 minutes continuously
+        String url = "http://lorem-rss.herokuapp.com/feed?unit=second&length=5";
+        String topicName = "lorem10";
+        try {
+            logger.debug("In try of high one");
+            RSSFeedParser parser = new RSSFeedParser(url);
+            Feed feed = parser.readFeed();
+            int i = 0;
+            for (FeedMessage message : feed.getMessages()) {
+                kafkaTemplate.send(topicName, i++, message.toString());
+                logger.debug("Sending at high rate:" + message);
+            }
+        } catch (Exception e) {
+            logger.debug("URL " + url + " failed!");
+            e.printStackTrace();
         }
     }
 }

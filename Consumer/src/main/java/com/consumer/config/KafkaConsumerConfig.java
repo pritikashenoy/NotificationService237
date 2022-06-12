@@ -24,14 +24,17 @@ public class KafkaConsumerConfig {
     @Value("${kafka.consumer.bootstrap}")
     private String bootstrapServers;
 
-    @Value("${kafka.consumer.group1.id}")
-    private String group1;
-
-    @Value("${kafka.consumer.group2.id}")
-    private String group2;
-
-    @Value("${kafka.consumer.group3.id}")
-    private String group3;
+//    @Value("${kafka.consumer.group1.id}")
+//    private String group1;
+//
+//    @Value("${kafka.consumer.group2.id}")
+//    private String group2;
+//
+//    @Value("${kafka.consumer.group3.id}")
+//    private String group3;
+//
+    @Value("${kafka.consumer.group5.id")
+    private String group5;
 
     @Value("${kafka.consumer.offset}")
     private String offsetConfig;
@@ -53,7 +56,7 @@ public class KafkaConsumerConfig {
         return props;
     }
 
-    // Consumer group 1
+    // Consumer group 5
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group1KafkaListenerContainerFactory() {
         // 1. This factory is primarily for building containers for @KafkaListener annotated methods.
@@ -61,41 +64,7 @@ public class KafkaConsumerConfig {
 
         // 2. Set up the config for this consumer group
         Map<String, Object> config = baseConsumerConfigs();
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, group1);
-
-        // 3. This factory is used to create new Consumer instances where all consumers
-        // share common configuration properties mentioned in this bean.
-        ConsumerFactory<Integer, String> consumerFactory = new DefaultKafkaConsumerFactory<>(config);
-        listenerFactory.setConsumerFactory(consumerFactory);
-        return listenerFactory;
-    }
-
-    // Consumer group 2
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group2KafkaListenerContainerFactory() {
-        // 1. This factory is primarily for building containers for @KafkaListener annotated methods.
-        ConcurrentKafkaListenerContainerFactory<Integer, String> listenerFactory = new ConcurrentKafkaListenerContainerFactory<>();
-
-        // 2. Set up the config for this consumer group
-        Map<String, Object> config = baseConsumerConfigs();
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, group2);
-
-        // 3. This factory is used to create new Consumer instances where all consumers
-        // share common configuration properties mentioned in this bean.
-        ConsumerFactory<Integer, String> consumerFactory = new DefaultKafkaConsumerFactory<>(config);
-        listenerFactory.setConsumerFactory(consumerFactory);
-        return listenerFactory;
-    }
-
-    // Consumer group 3
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group3KafkaListenerContainerFactory() {
-        // 1. This factory is primarily for building containers for @KafkaListener annotated methods.
-        ConcurrentKafkaListenerContainerFactory<Integer, String> listenerFactory = new ConcurrentKafkaListenerContainerFactory<>();
-
-        // 2. Set up the config for this consumer group
-        Map<String, Object> config = baseConsumerConfigs();
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, group3);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, group5);
 
         // 3. This factory is used to create new Consumer instances where all consumers
         // share common configuration properties mentioned in this bean.

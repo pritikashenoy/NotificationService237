@@ -42,19 +42,19 @@ public class KafkaTopicConfig {
     @Value("${kafka.producer.partitions}")
     private Integer numPartitions;
 
-    @Bean
-    public NewTopic topic1()
-    {
-        return TopicBuilder.name(topic1Name).partitions(numPartitions).replicas(1).build();
-    }
-    @Bean
-    public NewTopic topic2()
-    {
-        return TopicBuilder.name(topic2Name).partitions(numPartitions).replicas(1).build();
-    }
+//    @Bean
+//    public NewTopic topic1()
+//    {
+//        return TopicBuilder.name(topic1Name).partitions(numPartitions).replicas(1).build();
+//    }
+//    @Bean
+//    public NewTopic topic2()
+//    {
+//        return TopicBuilder.name(topic2Name).partitions(numPartitions).replicas(1).build();
+//    }
     @Bean
     public NewTopic topic3()
     {
-        return TopicBuilder.name(topic3Name).partitions(numPartitions).replicas(1).build();
+        return TopicBuilder.name("lorem10").partitions(numPartitions).replicas(2).build();
     }
 }
