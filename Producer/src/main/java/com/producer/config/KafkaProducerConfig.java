@@ -22,6 +22,7 @@ public class KafkaProducerConfig {
     public Map<String, Object> producerConfig() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer );
+        // TODO: Choose appropriate values for these
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, "16384");
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, "33554432");
         props.put(ProducerConfig.ACKS_CONFIG, "all");

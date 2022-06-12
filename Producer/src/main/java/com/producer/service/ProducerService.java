@@ -5,55 +5,31 @@ import com.producer.model.FeedMessage;
 import com.producer.model.RSSFeedParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.scheduling.annotation.*;
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.*;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.*;
+
 
 @Service
 public class ProducerService {
     private static final Logger logger = LoggerFactory.getLogger(ProducerService.class);
-
-    @Value("${kafka.producer.topic1.name}")
-    private String topic1Name;
-
-    @Value("${kafka.producer.topic2.name}")
-    private String topic2Name;
-
-    @Value("${kafka.producer.topic3.name}")
-    private String topic3Name;
-
-    @Value("${kafka.producer.topic4.name}")
-    private String topic4Name;
-
-    @Value("${kafka.producer.topic5.name}")
-    private String topic5Name;
-
-    @Value("${kafka.producer.topic6.name}")
-    private String topic6Name;
-
-    @Value("${kafka.producer.topic7.name}")
-    private String topic7Name;
-
-    Map<String, String> topics;
-
     private final KafkaTemplate<Integer, String> kafkaTemplate;
 
     public ProducerService(KafkaTemplate<Integer, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    // Generates 10 messages every 5 seconds, runs for 5 minutes
     @Async("asyncTaskExecutor")
     public void generateLow() throws IOException, InterruptedException {
-        // 1. Start with the slowest rate - 10 messages/5second
-        // This URL gives 10 messages at a time  -  we want to send 10 messages per sec
-        // run for 5 minutes.
         String url = "http://lorem-rss.herokuapp.com/feed?unit=second&interval=5&length=10";
-        String topicName = "lorem10";
+        String topicName = "loremlow";
         long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(5L, TimeUnit.MINUTES);
         while (System.nanoTime() < endTime) {
             try {
@@ -71,13 +47,11 @@ public class ProducerService {
         }
     }
 
+    // Generates 1000 messages per second, runs for 5 minutes
     @Async("asyncTaskExecutor")
     public void generateHigh() throws IOException, InterruptedException {
-        // 1. Start with the fastest rate - 1000 messages/second
-        // This URL gives 1000 messages at a time  -  we want to send 1000 messages per sec
-        // Run for 5 minutes continuously
         String url = "http://lorem-rss.herokuapp.com/feed?unit=second&length=1000";
-        String topicName = "lorem10";
+        String topicName = "loremhigh";
         long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(5L, TimeUnit.MINUTES);
         while (System.nanoTime() < endTime) {
             try {
@@ -95,24 +69,32 @@ public class ProducerService {
         }
     }
 
-    public void generateHighOne() throws IOException, InterruptedException {
-        // 1. Start with the fastest rate - 1000 messages/second
-        // This URL gives 1000 messages at a time  -  we want to send 1000 messages per sec
-        // Run for 5 minutes continuously
-        String url = "http://lorem-rss.herokuapp.com/feed?unit=second&length=5";
-        String topicName = "lorem10";
-        try {
-            logger.debug("In try of high one");
-            RSSFeedParser parser = new RSSFeedParser(url);
-            Feed feed = parser.readFeed();
-            int i = 0;
-            for (FeedMessage message : feed.getMessages()) {
-                kafkaTemplate.send(topicName, i++, message.toString());
-                logger.debug("Sending at high rate:" + message);
+    // Standard RSS fetcher, fetches every 5 seconds
+    @EventListener(ApplicationStartedEvent.class)
+    public void generate() throws IOException, InterruptedException {
+        Map<String,String> urls = new HashMap<>();
+        urls.put("http://rss.cnn.com/rss/cnn_topstories.rss","news");
+        urls.put("https://w1.weather.gov/xml/current_obs/KSNA.rss","weather");
+
+        long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(5L, TimeUnit.MINUTES);
+        while (System.nanoTime() < endTime) {
+            try {
+                for(Map.Entry<String, String> entry : urls.entrySet()) {
+                    RSSFeedParser parser = new RSSFeedParser(entry.getKey());
+                    Feed feed = parser.readFeed();
+                    int i = 0;
+                    for (FeedMessage message : feed.getMessages()) {
+                        kafkaTemplate.send(entry.getValue(), i, message.toString());
+                        logger.debug("Sending " + message.toString());
+                        i++;
+                    }
+                }
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-            logger.debug("URL " + url + " failed!");
-            e.printStackTrace();
         }
+
+
     }
 }

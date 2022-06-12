@@ -1,9 +1,8 @@
 package com.consumer.config;
 
-import com.consumer.service.ConsumerService;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,17 +23,17 @@ public class KafkaConsumerConfig {
     @Value("${kafka.consumer.bootstrap}")
     private String bootstrapServers;
 
-//    @Value("${kafka.consumer.group1.id}")
-//    private String group1;
-//
-//    @Value("${kafka.consumer.group2.id}")
-//    private String group2;
-//
-//    @Value("${kafka.consumer.group3.id}")
-//    private String group3;
-//
-    @Value("${kafka.consumer.group5.id")
-    private String group5;
+    @Value("${kafka.consumer.group1.id}")
+    private String group1;
+
+    @Value("${kafka.consumer.group2.id}")
+    private String group2;
+
+    @Value("${kafka.consumer.group3.id}")
+    private String group3;
+
+    @Value("${kafka.consumer.group4.id")
+    private String group4;
 
     @Value("${kafka.consumer.offset}")
     private String offsetConfig;
@@ -56,15 +55,14 @@ public class KafkaConsumerConfig {
         return props;
     }
 
-    // Consumer group 5
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group1KafkaListenerContainerFactory() {
+    // Consumer group common method
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> groupKafkaListenerContainerFactory(String groupName) {
         // 1. This factory is primarily for building containers for @KafkaListener annotated methods.
         ConcurrentKafkaListenerContainerFactory<Integer, String> listenerFactory = new ConcurrentKafkaListenerContainerFactory<>();
 
         // 2. Set up the config for this consumer group
         Map<String, Object> config = baseConsumerConfigs();
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, group5);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, groupName);
 
         // 3. This factory is used to create new Consumer instances where all consumers
         // share common configuration properties mentioned in this bean.
@@ -72,10 +70,24 @@ public class KafkaConsumerConfig {
         listenerFactory.setConsumerFactory(consumerFactory);
         return listenerFactory;
     }
-
-    // Start up the consumer service to start receiving messages
     @Bean
-    public ConsumerService receiver() {
-        return new ConsumerService();
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group1KafkaListenerContainerFactory() {
+        return groupKafkaListenerContainerFactory(group1);
     }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group2KafkaListenerContainerFactory() {
+        return groupKafkaListenerContainerFactory(group2);
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group3KafkaListenerContainerFactory() {
+        return groupKafkaListenerContainerFactory(group3);
+    }
+
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<Integer, String>> group4KafkaListenerContainerFactory() {
+        return groupKafkaListenerContainerFactory(group4);
+    }
+
 }

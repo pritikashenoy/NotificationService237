@@ -38,14 +38,4 @@ public final class MessageController {
     public void sendMessageToKafkaTopicHigh() throws IOException, InterruptedException {
         producerService.generateHigh();
     }
-
-    @PostMapping("/publish/highone")
-    @ResponseStatus(value = HttpStatus.OK)
-    public void sendMessageToKafkaTopicHighOne() throws IOException, InterruptedException {
-        producerService.generateHighOne();
-    }
-
-
-
-
     }
