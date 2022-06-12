@@ -39,6 +39,41 @@ public class KafkaTopicConfig {
     @Value("${kafka.producer.topic3.replicas}")
     private Integer topic3Replicas;
 
+    @Value("${kafka.producer.topic4.name}")
+    private String topic4Name;
+
+    @Value("${kafka.producer.topic4.partitions}")
+    private Integer topic4Partitions;
+
+    @Value("${kafka.producer.topic4.replicas}")
+    private Integer topic4Replicas;
+
+    @Value("${kafka.producer.topic5.name}")
+    private String topic5Name;
+
+    @Value("${kafka.producer.topic5.partitions}")
+    private Integer topic5Partitions;
+
+    @Value("${kafka.producer.topic5.replicas}")
+    private Integer topic5Replicas;
+
+    @Value("${kafka.producer.topic6.name}")
+    private String topic6Name;
+
+    @Value("${kafka.producer.topic6.partitions}")
+    private Integer topic6Partitions;
+
+    @Value("${kafka.producer.topic6.replicas}")
+    private Integer topic6Replicas;
+
+    @Value("${kafka.producer.topic7.name}")
+    private String topic7Name;
+
+    @Value("${kafka.producer.topic7.partitions}")
+    private Integer topic7Partitions;
+
+    @Value("${kafka.producer.topic7.replicas}")
+    private Integer topic7Replicas;
     @Value("${kafka.producer.partitions}")
     private Integer numPartitions;
 
@@ -56,5 +91,27 @@ public class KafkaTopicConfig {
     public NewTopic topic3()
     {
         return TopicBuilder.name("lorem10").partitions(numPartitions).replicas(2).build();
+    }
+
+    @Bean
+    public NewTopic topic4()
+    {
+        return TopicBuilder.name(topic4Name).partitions(numPartitions).replicas(1).build();
+    }
+    @Bean
+    public NewTopic topic5()
+    {
+        return TopicBuilder.name(topic5Name).partitions(numPartitions).replicas(1).build();
+    }
+    @Bean
+    public NewTopic topic6()
+    {
+        return TopicBuilder.name(topic6Name).partitions(numPartitions).replicas(1).build();
+    }
+
+    @Bean
+    public NewTopic topic7()
+    {
+        return TopicBuilder.name(topic7Name).partitions(numPartitions).replicas(1).build();
     }
 }
