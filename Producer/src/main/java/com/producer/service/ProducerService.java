@@ -50,10 +50,15 @@ public class ProducerService {
     // Generates 1000 messages per second, runs for 5 minutes
     @Async("asyncTaskExecutor")
     public void generateHigh() throws IOException, InterruptedException {
-        String url = "http://lorem-rss.herokuapp.com/feed?unit=second&length=1000";
+        List<String> urls = new ArrayList<>();
+        for(int i = 0; i  < 20; i++)
+        {
+            urls.add("http://lorem-rss.herokuapp.com/feed?unit=second&length=1000");
+        }
         String topicName = "loremhigh";
         long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(5L, TimeUnit.MINUTES);
         while (System.nanoTime() < endTime) {
+            for (String url : urls) {
             try {
                 RSSFeedParser parser = new RSSFeedParser(url);
                 Feed feed = parser.readFeed();
@@ -62,9 +67,10 @@ public class ProducerService {
                     kafkaTemplate.send(topicName, i++, message.toString());
                     logger.debug("Sending at high rate:" + message);
                 }
-            } catch (Exception e) {
-                logger.debug("URL " + url + " failed!");
-                e.printStackTrace();
+            } catch(Exception e){
+                        logger.debug("URL " + url + " failed!");
+                        e.printStackTrace();
+                    }
             }
         }
     }
@@ -76,7 +82,7 @@ public class ProducerService {
         urls.put("http://rss.cnn.com/rss/cnn_topstories.rss","news");
         urls.put("https://w1.weather.gov/xml/current_obs/KSNA.rss","weather");
 
-        long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(5L, TimeUnit.MINUTES);
+        long endTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(2L, TimeUnit.MINUTES);
         while (System.nanoTime() < endTime) {
             try {
                 for(Map.Entry<String, String> entry : urls.entrySet()) {
